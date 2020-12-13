@@ -11,6 +11,8 @@
             _password = password;
         }
 
+        public string Name => _name;
+
         public bool Authenticate(string uName, string uPass)
         {
             return uName.Equals(_name) && uPass.Equals(_password);
