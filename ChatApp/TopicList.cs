@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace ChatApp
 {
@@ -11,15 +12,36 @@ namespace ChatApp
             _topics= new List<Topic>();
         }
 
-        public bool newTopic(string name)
+        public Topic FindTopic(string name)
         {
             foreach (Topic t in _topics)
             {
-                if (t.Name.Equals(name)) return false;
+                if (t.Name.Equals(name)) return t;
+            }
+            
+            return null;
+        }
+
+        public bool NewTopic(string name)
+        {
+            if (FindTopic(name) != null)
+            {
+                return false;
             }
             
             _topics.Add(new Topic(name));
             return true;
+        }
+
+        public bool JoinTopic(string name, string newUser)
+        {
+            Topic t = FindTopic(name);
+            if (t == null)
+            {
+                return false;
+            }
+
+            return t.ConnectUser(newUser);
         }
 
         public override string ToString()

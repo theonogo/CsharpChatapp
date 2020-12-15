@@ -26,7 +26,7 @@ namespace ClientTextApp
                 string uName = Console.ReadLine();
                 string uPass = Console.ReadLine();
                 
-                Net.sendMsg(comm.GetStream(), new UserInfo((int)MType.NEWACC,uName,uPass));
+                Net.sendMsg(comm.GetStream(), new UserInfo((int)MTypes.NEWACC,uName,uPass));
 
                 status = ((Response) Net.rcvMsg(comm.GetStream())).Res;
 
@@ -45,7 +45,7 @@ namespace ClientTextApp
                     uName = Console.ReadLine();
                     uPass = Console.ReadLine();
 
-                    Net.sendMsg(comm.GetStream(), new UserInfo((int) MType.LOGIN, uName, uPass));
+                    Net.sendMsg(comm.GetStream(), new UserInfo((int) MTypes.LOGIN, uName, uPass));
 
                     status = ((Response) Net.rcvMsg(comm.GetStream())).Res;
 

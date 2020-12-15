@@ -58,13 +58,31 @@ namespace ChatApp
                         UserInfo usr = (UserInfo) msg;
                         switch (usr.MType)
                         {
-                            case (int) MType.LOGIN:
-                                Net.sendMsg(comm.GetStream(), new Response((int)MType.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
+                            case (int) MTypes.LOGIN:
+                                Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
                                 break;
                             
-                            case (int) MType.NEWACC:
-                                Net.sendMsg(comm.GetStream(), new Response((int)MType.LOGIN,_userList.CreateUser(usr.Name, usr.Pass, null)));
+                            case (int) MTypes.NEWACC:
+                                Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.CreateUser(usr.Name, usr.Pass, null)));
                                 break;
+                        }
+                    } else if (_userList.CheckLogged(comm)) 
+                    {
+                        if (msg is TopicInfo)
+                        {
+                            TopicInfo tp = (TopicInfo) msg;
+
+                            switch (tp.MType)
+                            {
+                                case (int)MTypes.NEWTOP :
+                                    Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.NewTopic(tp.TName)));
+                                    break;
+                                
+                                case (int)MTypes.JOINTOP :
+                                    User joining = _userList.FindUser(comm);
+                                    Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.JoinTopic(tp.TName,joining.Name)));
+                                    break;
+                            }
                         }
                     }
                 }

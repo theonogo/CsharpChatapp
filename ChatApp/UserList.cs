@@ -25,12 +25,23 @@ namespace ChatApp
         {
             foreach (var u in _users)
             {
-                if (u.checkName(uName))
+                if (u.Name == uName)
                 {
                     return u;
                 }
             }
-
+            return null;
+        }
+        
+        public User FindUser(TcpClient comm)
+        {
+            foreach (var u in _users)
+            {
+                if (u.Comm == comm)
+                {
+                    return u;
+                }
+            }
             return null;
         }
 
@@ -43,5 +54,16 @@ namespace ChatApp
 
             return false;
         }
+
+        public bool CheckLogged(TcpClient comm)
+        {
+            if (FindUser(comm) != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        
     }
 }

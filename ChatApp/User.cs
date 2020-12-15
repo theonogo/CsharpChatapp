@@ -28,10 +28,5 @@ namespace ChatApp
             }
             return false;
         }
-
-        public bool checkName(string uName)
-        {
-            return uName.Equals(_name);
-        }
     }
 }

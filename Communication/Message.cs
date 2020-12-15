@@ -3,7 +3,9 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace Communication
 {
-    
+    /**
+     * Parent abstract class that simply defines the type of message
+     */
     [Serializable]
     public abstract class Message
     {
@@ -17,6 +19,9 @@ namespace Communication
         public int MType => _mType;
     }
     
+    /**
+     * Sending of username and password for login or sign up purposes
+     */
     [Serializable]
     public class UserInfo : Message
     {
@@ -35,6 +40,9 @@ namespace Communication
         
     }
         
+    /**
+     * Basic boolean response to a request
+     */
     [Serializable]
     public class Response : Message
     {
@@ -46,5 +54,18 @@ namespace Communication
         }
 
         public bool Res => _res;
+    }
+
+    [Serializable]
+    public class TopicInfo : Message
+    {
+        private string _tName;
+
+        public TopicInfo(int mType, string tName) : base(mType)
+        {
+            _tName = tName;
+        }
+
+        public string TName => _tName;
     }
 }
