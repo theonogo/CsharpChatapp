@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace ChatApp
 {
@@ -11,11 +12,11 @@ namespace ChatApp
             _users = new List<User>();
         }
 
-        public bool CreateUser(string uName, string uPass)
+        public bool CreateUser(string uName, string uPass, TcpClient comm)
         {
             if (FindUser(uName)!= null) return false;
 
-            _users.Add(new User(uName, uPass));
+            _users.Add(new User(uName, uPass, comm));
 
             return true;
         }
@@ -33,11 +34,11 @@ namespace ChatApp
             return null;
         }
 
-        public bool Login(string uName, string uPass)
+        public bool Login(string uName, string uPass, TcpClient comm)
         {
             foreach (User u in _users)
             {
-                if (u.Authenticate(uName, uPass)) return true;
+                if (u.Authenticate(uName, uPass, comm)) return true;
             }
 
             return false;
