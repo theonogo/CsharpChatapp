@@ -3,6 +3,8 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace Communication
 {
+    
+    [Serializable]
     public abstract class Message
     {
         private int _mType;
@@ -34,11 +36,11 @@ namespace Communication
     }
         
     [Serializable]
-    public class response : Message
+    public class Response : Message
     {
         private bool _res;
 
-        public response(int mType, bool res) : base(mType)
+        public Response(int mType, bool res) : base(mType)
         {
             this._res = res;
         }

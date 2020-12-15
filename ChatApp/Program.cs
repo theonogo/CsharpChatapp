@@ -6,7 +6,8 @@ namespace ChatApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Server serv = new Server(8976);
+            serv.start();
         }
     }
 }

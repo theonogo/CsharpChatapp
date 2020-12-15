@@ -59,11 +59,11 @@ namespace ChatApp
                         switch (usr.MType)
                         {
                             case (int) MType.LOGIN:
-                                Net.sendMsg(comm.GetStream(), new response((int)MType.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
+                                Net.sendMsg(comm.GetStream(), new Response((int)MType.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
                                 break;
                             
                             case (int) MType.NEWACC:
-                                Net.sendMsg(comm.GetStream(), new response((int)MType.LOGIN,_userList.Login(usr.Name, usr.Pass, null)));
+                                Net.sendMsg(comm.GetStream(), new Response((int)MType.LOGIN,_userList.CreateUser(usr.Name, usr.Pass, null)));
                                 break;
                         }
                     }

@@ -12,7 +12,7 @@ namespace ChatApp
         {
             _name = name;
             _password = password;
-            _comm = _comm;
+            _comm = comm;
         }
 
         public string Name => _name;
