@@ -12,6 +12,9 @@ namespace ChatApp
             _users = new List<User>();
         }
 
+        /**
+         * Creates a new User if a user with that name does not already exist
+         */
         public bool CreateUser(string uName, string uPass, TcpClient comm)
         {
             if (FindUser(uName)!= null) return false;
@@ -21,6 +24,10 @@ namespace ChatApp
             return true;
         }
 
+        /**
+         * Finds a user object from a given name
+         * Returns null if user cannot be found
+         */
         public User FindUser(string uName)
         {
             foreach (var u in _users)
@@ -33,6 +40,10 @@ namespace ChatApp
             return null;
         }
         
+        /**
+         * Finds a user object from a given TCP connection
+         * Returns null if user cannot be found
+         */
         public User FindUser(TcpClient comm)
         {
             foreach (var u in _users)
@@ -45,6 +56,11 @@ namespace ChatApp
             return null;
         }
 
+        /**
+         * Logs a user in by verifying credentials against all registered accounts
+         * Also updates users TCP connection
+         * returns false if given incorrect credentials
+         */
         public bool Login(string uName, string uPass, TcpClient comm)
         {
             foreach (User u in _users)
@@ -55,6 +71,9 @@ namespace ChatApp
             return false;
         }
 
+        /**
+         * Verifies the connected TCP client is actually logged in
+         */
         public bool CheckLogged(TcpClient comm)
         {
             if (FindUser(comm) != null)
@@ -65,6 +84,9 @@ namespace ChatApp
             return false;
         }
 
+        /**
+         * logs a user out given their TCP connection
+         */
         public void Logout(TcpClient comm)
         {
             FindUser(comm).LogOut();

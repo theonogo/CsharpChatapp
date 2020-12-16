@@ -19,6 +19,9 @@ namespace ChatApp
 
         public TcpClient Comm => _comm;
 
+        /**
+         * Authenticates login and password and assigns tcp connection to account
+         */
         public bool Authenticate(string uName, string uPass, TcpClient comm)
         {
             if (uName.Equals(_name) && uPass.Equals(_password))
@@ -29,6 +32,9 @@ namespace ChatApp
             return false;
         }
 
+        /**
+         * Unassigns TCP connection when disconnecting
+         */
         public void LogOut()
         {
             _comm = null;

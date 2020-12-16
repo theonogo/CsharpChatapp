@@ -31,6 +31,7 @@ namespace ChatApp
             {
                 TcpClient comm = l.AcceptTcpClient();
                 Console.WriteLine("Connection established @" + comm);
+                //For each connection, a thread is started to receive and process requests
                 new Thread(new Receiver(comm).ProcessRequest).Start();
             }
         }
@@ -46,29 +47,30 @@ namespace ChatApp
     
             public void ProcessRequest()
             {
-                Console.WriteLine("Computing operation");
                 bool open = true;
                 while (open)
                 {
-                    // read expression
+                    // Receive expression
                     Message msg = Net.rcvMsg(comm.GetStream());
-    
-                    Console.WriteLine("expression received");
-                    // send result
-    
+
+                    //Finds user sub-type to decide which Manager should deal with the message
                     if (msg is UserInfo)
                     {
-                        LogManager((UserInfo) msg,comm);
-                    } else if (_userList.CheckLogged(comm)) 
+                        LogManager((UserInfo) msg);
+                    }
+                    //Verifies user is actually logged in to deal with topics and messages
+                    else if (_userList.CheckLogged(comm)) 
                     {
                         if (msg is TopicInfo)
                         {
-                            TopicManager((TopicInfo) msg,comm);
+                            TopicManager((TopicInfo) msg);
                         } else if (msg is ChatMessage)
                         {
                             ChatManager((ChatMessage) msg);
                         }
-                    } else if (msg.MType == (int) MTypes.CLOSE)
+                    } 
+                    //Safely closes TCP connection on Client exit
+                    else if (msg.MType == (int) MTypes.CLOSE)
                     {
                         open = false;
                         comm.GetStream().Close();
@@ -77,15 +79,20 @@ namespace ChatApp
                 }
             }
 
-            public void LogManager(UserInfo usr, TcpClient comm)
+            /**
+             * Deals with login, sign up, and log out
+             */
+            public void LogManager(UserInfo usr)
             {
                 switch (usr.MType)
                 {
                     case (int) MTypes.LOGIN:
+                        //Send message to confirm or deny login
                         Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
                         break;
                             
                     case (int) MTypes.NEWACC:
+                        //Send message to confirm or deny sign up
                         Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.CreateUser(usr.Name, usr.Pass, null)));
                         break;
                     case (int) MTypes.LOGOUT:
@@ -94,29 +101,40 @@ namespace ChatApp
                 }
             }
 
-            public void TopicManager(TopicInfo tp, TcpClient comm)
+            /**
+             * Deals with Topic creation, view, connection, and deconnection
+             */
+            public void TopicManager(TopicInfo tp)
             {
                 switch (tp.MType)
                 {
                     case (int)MTypes.NEWTOP :
+                        //Send message to confirm or deny topic creation
                         Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.NewTopic(tp.TName)));
                         break;
                                 
                     case (int)MTypes.JOINTOP :
+                        //Send message to confirm or deny topic connection
                         Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.JoinTopic(tp.TName,_userList.FindUser(comm).Name)));
                         break;
                                 
                     case (int)MTypes.VIEWTOP :
+                        //Sends list of topics and all connected accounts
                         Net.sendMsg(comm.GetStream(), new TopicInfo((int) MTypes.VIEWTOP,_topics.ToString()));
                         break;
                                 
                     case (int) MTypes.LEAVETOP :
                         _topics.LeaveTopic(_userList.FindUser(comm).Name);
+                        //Sends a leave message to user as confirmation so the listening thread can end
                         Net.sendMsg(comm.GetStream(), new ChatMessage((int) MTypes.CHATLEAVE, null, null));
                         break;
                 }
             }
 
+            /**
+             * Manages the broadcast of messages to all users in a topic
+             * This includes the sender of the message so they can have confirmation their message has sent
+             */
             public void ChatManager(ChatMessage cmsg)
             {
                 List<string> broadcastList;

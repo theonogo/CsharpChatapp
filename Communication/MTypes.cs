@@ -1,9 +1,10 @@
 ﻿namespace Communication
 {
+    //Different possible message sub-types
     public enum MTypes
     {
         CLOSE = 0,
-        LOGIN = 1,
+        LOGIN = 1, 
         NEWACC = 2,
         LOGOUT = 3,
         NEWTOP = 4,

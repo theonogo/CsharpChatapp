@@ -12,6 +12,10 @@ namespace ChatApp
             _topics= new List<Topic>();
         }
 
+        /**
+         * Returns the corresponding topic object given a topic name
+         * Returns null if innexistant
+         */
         public Topic FindTopic(string name)
         {
             foreach (Topic t in _topics)
@@ -22,6 +26,10 @@ namespace ChatApp
             return null;
         }
 
+        /**
+         * Creates a new topic with given name
+         * returns false if topic exists already
+         */
         public bool NewTopic(string name)
         {
             if (FindTopic(name) != null)
@@ -33,6 +41,10 @@ namespace ChatApp
             return true;
         }
 
+        /**
+         * Adds a user to a topic if the topic exists.
+         * Returns false otherwise
+         */
         public bool JoinTopic(string name, string newUser)
         {
             Topic t = FindTopic(name);
@@ -44,6 +56,9 @@ namespace ChatApp
             return t.ConnectUser(newUser);
         }
 
+        /**
+         * Disconnects a user from every topic they might be connected to
+         **/
         public void LeaveTopic(string user)
         {
             foreach (Topic t in _topics)
@@ -52,6 +67,9 @@ namespace ChatApp
             }
         }
 
+        /**
+         * Given a username, return list of all usernames in the same topic
+         **/
         public List<string> GetBroadcast(string user)
         {
             foreach (Topic t in _topics)
@@ -65,6 +83,9 @@ namespace ChatApp
             return null;
         }
 
+        /**
+         * Displays every topic
+         **/
         public override string ToString()
         {
             string outStr = _topics.Count + " Topics: \n";

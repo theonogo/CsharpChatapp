@@ -9,6 +9,7 @@ namespace Communication
     [Serializable]
     public abstract class Message
     {
+        //informs the type of request/response. Each message child can serve multiple purposes thanks to this var
         private int _mType;
 
         protected Message(int mType)
