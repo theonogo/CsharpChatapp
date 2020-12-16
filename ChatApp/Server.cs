@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -45,7 +47,8 @@ namespace ChatApp
             public void ProcessRequest()
             {
                 Console.WriteLine("Computing operation");
-                while (true)
+                bool open = true;
+                while (open)
                 {
                     // read expression
                     Message msg = Net.rcvMsg(comm.GetStream());
@@ -55,37 +58,81 @@ namespace ChatApp
     
                     if (msg is UserInfo)
                     {
-                        UserInfo usr = (UserInfo) msg;
-                        switch (usr.MType)
-                        {
-                            case (int) MTypes.LOGIN:
-                                Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
-                                break;
-                            
-                            case (int) MTypes.NEWACC:
-                                Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.CreateUser(usr.Name, usr.Pass, null)));
-                                break;
-                        }
+                        LogManager((UserInfo) msg,comm);
                     } else if (_userList.CheckLogged(comm)) 
                     {
                         if (msg is TopicInfo)
                         {
-                            TopicInfo tp = (TopicInfo) msg;
-
-                            switch (tp.MType)
-                            {
-                                case (int)MTypes.NEWTOP :
-                                    Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.NewTopic(tp.TName)));
-                                    break;
-                                
-                                case (int)MTypes.JOINTOP :
-                                    User joining = _userList.FindUser(comm);
-                                    Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.JoinTopic(tp.TName,joining.Name)));
-                                    break;
-                            }
+                            TopicManager((TopicInfo) msg,comm);
+                        } else if (msg is ChatMessage)
+                        {
+                            ChatManager((ChatMessage) msg);
                         }
+                    } else if (msg.MType == (int) MTypes.CLOSE)
+                    {
+                        open = false;
+                        comm.GetStream().Close();
+                        comm.Close();
                     }
                 }
+            }
+
+            public void LogManager(UserInfo usr, TcpClient comm)
+            {
+                switch (usr.MType)
+                {
+                    case (int) MTypes.LOGIN:
+                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
+                        break;
+                            
+                    case (int) MTypes.NEWACC:
+                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.CreateUser(usr.Name, usr.Pass, null)));
+                        break;
+                    case (int) MTypes.LOGOUT:
+                        _userList.Logout(comm);
+                        break;
+                }
+            }
+
+            public void TopicManager(TopicInfo tp, TcpClient comm)
+            {
+                switch (tp.MType)
+                {
+                    case (int)MTypes.NEWTOP :
+                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.NewTopic(tp.TName)));
+                        break;
+                                
+                    case (int)MTypes.JOINTOP :
+                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.JoinTopic(tp.TName,_userList.FindUser(comm).Name)));
+                        break;
+                                
+                    case (int)MTypes.VIEWTOP :
+                        Net.sendMsg(comm.GetStream(), new TopicInfo((int) MTypes.VIEWTOP,_topics.ToString()));
+                        break;
+                                
+                    case (int) MTypes.LEAVETOP :
+                        _topics.LeaveTopic(_userList.FindUser(comm).Name);
+                        Net.sendMsg(comm.GetStream(), new ChatMessage((int) MTypes.CHATLEAVE, null, null));
+                        break;
+                }
+            }
+
+            public void ChatManager(ChatMessage cmsg)
+            {
+                List<string> broadcastList;
+                User recipient;
+
+                broadcastList= _topics.GetBroadcast(cmsg.Sender);
+
+                foreach (string uName in broadcastList)
+                {
+                    recipient = _userList.FindUser(uName);
+                    if (recipient.Comm != null)
+                    {
+                        Net.sendMsg(recipient.Comm.GetStream(),cmsg);
+                    }
+                }
+
             }
         }
     }

@@ -44,6 +44,27 @@ namespace ChatApp
             return t.ConnectUser(newUser);
         }
 
+        public void LeaveTopic(string user)
+        {
+            foreach (Topic t in _topics)
+            {
+                t.DisconnectUser(user);
+            }
+        }
+
+        public List<string> GetBroadcast(string user)
+        {
+            foreach (Topic t in _topics)
+            {
+                if (t.ConnectedUsers.Contains(user))
+                {
+                    return t.ConnectedUsers;
+                }
+            }
+
+            return null;
+        }
+
         public override string ToString()
         {
             string outStr = _topics.Count + " Topics: \n";
@@ -51,7 +72,7 @@ namespace ChatApp
             {
                 outStr += t;
             }
-            return base.ToString();
+            return outStr;
         }
     }
 }

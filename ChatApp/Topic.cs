@@ -15,6 +15,8 @@ namespace ChatApp
 
         public string Name => _name;
 
+        public List<string> ConnectedUsers => _connectedUsers;
+
         public bool ConnectUser(string user)
         {
             if (_connectedUsers.Contains(user)) return false;

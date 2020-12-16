@@ -55,7 +55,10 @@ namespace Communication
 
         public bool Res => _res;
     }
-
+    
+    /*
+     * Message dealing with Creating, Joining, Leaving, and viewing a topic
+     */
     [Serializable]
     public class TopicInfo : Message
     {
@@ -67,5 +70,30 @@ namespace Communication
         }
 
         public string TName => _tName;
+    }
+
+    /*
+     * Chat messages with sender name and message content
+     */
+    [Serializable]
+    public class ChatMessage : Message
+    {
+        private string _sender;
+        private string _message;
+
+        public ChatMessage(int mType, string sender, string message) : base(mType)
+        {
+            _sender = sender;
+            _message = message;
+        }
+
+        public string Sender => _sender;
+
+        public string Message => _message;
+
+        public override string ToString()
+        {
+            return _sender + ": " + _message;
+        }
     }
 }

@@ -64,6 +64,10 @@ namespace ChatApp
 
             return false;
         }
-        
+
+        public void Logout(TcpClient comm)
+        {
+            FindUser(comm).LogOut();
+        }
     }
 }

@@ -28,5 +28,10 @@ namespace ChatApp
             }
             return false;
         }
+
+        public void LogOut()
+        {
+            _comm = null;
+        }
     }
 }
