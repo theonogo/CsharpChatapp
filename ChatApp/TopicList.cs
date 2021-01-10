@@ -95,5 +95,17 @@ namespace ChatApp
             }
             return outStr;
         }
+        
+        public List<string> ToList()
+        {
+            List<string> tList= new List<string>();
+
+            foreach (var topic in _topics)
+            {
+                tList.Add(topic.Name);
+            }
+
+            return tList;
+        }
     }
 }

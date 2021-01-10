@@ -30,6 +30,12 @@ namespace ClientGUIApp
                 if (((Response) Net.rcvMsg(ClientValues.Comm.GetStream())).Res)
                 {
                     InfoLabel.Text = "Logged In!";
+                    UserBox.Text = "";
+                    PassBox.Text = "";
+                    ClientValues.UName = uName;
+                    Hide();
+                    (new MenuForm()).ShowDialog();
+                    Show();
                 } else
                 {
                     InfoLabel.Text = "Incorrect username or password";

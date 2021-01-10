@@ -10,4 +10,10 @@
       <ProjectReference Include="..\Communication\Communication.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="MenuForm.cs">
+        <SubType>Form</SubType>
+      </Compile>
+    </ItemGroup>
+
 </Project>

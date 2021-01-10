@@ -126,7 +126,7 @@ namespace ChatApp
                                 
                     case (int)MTypes.VIEWTOP :
                         //Sends list of topics and all connected accounts
-                        Net.sendMsg(comm.GetStream(), new TopicInfo((int) MTypes.VIEWTOP,_topics.ToString()));
+                        Net.sendMsg(comm.GetStream(), new TopicInfo((int) MTypes.VIEWTOP,_topics.ToString(), _topics.ToList()));
                         break;
                                 
                     case (int) MTypes.LEAVETOP :

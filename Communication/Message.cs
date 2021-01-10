@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 
 namespace Communication
@@ -64,13 +65,23 @@ namespace Communication
     public class TopicInfo : Message
     {
         private string _tName;
+        private List<string> _tList;
 
         public TopicInfo(int mType, string tName) : base(mType)
         {
             _tName = tName;
+            _tList = null;
+        }
+        
+        public TopicInfo(int mType, string tName, List<string> tList) : base(mType)
+        {
+            _tName = tName;
+            _tList = tList;
         }
 
         public string TName => _tName;
+        
+        public List<string> TList => _tList;
     }
 
     /*
