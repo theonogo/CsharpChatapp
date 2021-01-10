@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 
+//Saves TCP connection and username values across forms
 namespace ClientGUIApp
 {
     public static class ClientValues

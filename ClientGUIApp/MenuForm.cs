@@ -9,6 +9,7 @@ namespace ClientGUIApp
 {
     public partial class MenuForm : Form
     {
+        //the currTopic variable is there to know if the user is in a topic and then name of said topic
         private string currTopic;
         
         private NetworkStream comm = ClientValues.Comm.GetStream();
@@ -17,17 +18,24 @@ namespace ClientGUIApp
             InitializeComponent();
             currTopic = null;
             
+            //Start a thread to receive and process messages from the server
             Thread th = new Thread(Receiver);
             th.Start();
             
             RefreshClick(null, null);
         }
 
+        /*
+         * Refreshes the list of Topics, This is done automatically when logging in and when creating a new Topic
+         */
         private void RefreshClick(object sender, EventArgs e)
         {
             Net.sendMsg(comm, new TopicInfo((int) MTypes.VIEWTOP, null));
         }
 
+        /*
+         * Creates a new topic if one with that name does not already exist
+         */
         private void AddTopic(object sender, EventArgs e)
         {
             String tName = NewTopicBox.Text;
@@ -41,6 +49,9 @@ namespace ClientGUIApp
             }
         }
 
+        /*
+         * Sends a message to all those connected to the same topic
+         */
         private void SendMessage(object sender, EventArgs e)
         {
             string message = MessageBox.Text;
@@ -51,6 +62,9 @@ namespace ClientGUIApp
             }
         }
 
+        /*
+         * Deals with all server based messsages
+         */
         public void Receiver()
         {
             bool cancel=false;
@@ -92,6 +106,9 @@ namespace ClientGUIApp
 
         }
 
+        /*
+         * sends a dm given a recipient and message
+         */
         private void SendDirectMessage(object sender, EventArgs e)
         {
             string message = DMBox.Text;
@@ -102,6 +119,9 @@ namespace ClientGUIApp
             }
         }
 
+        /*
+         * When clicking on a topic in the list of topics , this immediately connects the user to said topic
+         */
         private void SelectTopic(object sender, EventArgs e)
         {
             if (currTopic != null)
@@ -114,6 +134,9 @@ namespace ClientGUIApp
             Net.sendMsg(comm, new TopicInfo((int) MTypes.JOINTOP, currTopic));
         }
 
+        /*
+         * safely logs out the user
+         */
         private new void Closing(object sender, FormClosedEventArgs e)
         {
             //Logs out the user by disassociating the tcp connection with the account

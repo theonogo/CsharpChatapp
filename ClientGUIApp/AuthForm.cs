@@ -17,7 +17,10 @@ namespace ClientGUIApp
         {
             InitializeComponent();
         }
-
+        
+        /*
+         * Logs a user in as long as the info has been entered
+         */
         private void LogClick(object sender, EventArgs e)
         {
             string uName = UserBox.Text;
@@ -33,6 +36,8 @@ namespace ClientGUIApp
                     UserBox.Text = "";
                     PassBox.Text = "";
                     ClientValues.UName = uName;
+                    
+                    //opens the menu form and hide the AuthForm until the menu form is closed.
                     Hide();
                     (new MenuForm()).ShowDialog();
                     Show();
@@ -47,6 +52,9 @@ namespace ClientGUIApp
             }
         }
 
+        /*
+         * Signs a user up as long as the info has been entered
+         */
         private void SignClick(object sender, EventArgs e)
         {
             string uName = UserBox.Text;
@@ -70,6 +78,9 @@ namespace ClientGUIApp
             }
         }
 
+        /*
+         * Safely closes the connection to the server when the window is closed.
+         */
         private new void Closing(object sender, FormClosedEventArgs e)
         {
             Net.sendMsg(ClientValues.Comm.GetStream(),new Response((int) MTypes.CLOSE, false));
