@@ -31,7 +31,7 @@ namespace ClientGUIApp
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.MessagesBox = new System.Windows.Forms.TextBox();
             this.MessageBox = new System.Windows.Forms.TextBox();
             this.ListTopics = new System.Windows.Forms.ListBox();
             this.SendButton = new System.Windows.Forms.Button();
@@ -42,24 +42,24 @@ namespace ClientGUIApp
             this.MessagesLabel = new System.Windows.Forms.Label();
             this.NewTopicLabel = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.RecipientBox = new System.Windows.Forms.TextBox();
             this.MessageLabel = new System.Windows.Forms.Label();
+            this.DMsBox = new System.Windows.Forms.TextBox();
             this.DMBox = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.SendDMButton = new System.Windows.Forms.Button();
             this.DMLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // textBox1
+            // MessagesBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(228, 46);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(381, 262);
-            this.textBox1.TabIndex = 0;
+            this.MessagesBox.Location = new System.Drawing.Point(228, 46);
+            this.MessagesBox.Multiline = true;
+            this.MessagesBox.Name = "MessagesBox";
+            this.MessagesBox.ReadOnly = true;
+            this.MessagesBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.MessagesBox.Size = new System.Drawing.Size(381, 262);
+            this.MessagesBox.TabIndex = 0;
             // 
             // MessageBox
             // 
@@ -75,6 +75,7 @@ namespace ClientGUIApp
             this.ListTopics.Name = "ListTopics";
             this.ListTopics.Size = new System.Drawing.Size(182, 264);
             this.ListTopics.TabIndex = 2;
+            this.ListTopics.SelectedIndexChanged += new System.EventHandler(this.SelectTopic);
             // 
             // SendButton
             // 
@@ -146,12 +147,12 @@ namespace ClientGUIApp
             this.label4.Text = "To:";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // textBox4
+            // RecipientBox
             // 
-            this.textBox4.Location = new System.Drawing.Point(787, 370);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(166, 20);
-            this.textBox4.TabIndex = 13;
+            this.RecipientBox.Location = new System.Drawing.Point(787, 370);
+            this.RecipientBox.Name = "RecipientBox";
+            this.RecipientBox.Size = new System.Drawing.Size(166, 20);
+            this.RecipientBox.TabIndex = 13;
             // 
             // MessageLabel
             // 
@@ -161,32 +162,32 @@ namespace ClientGUIApp
             this.MessageLabel.TabIndex = 14;
             this.MessageLabel.Text = "New Topic Message:";
             // 
+            // DMsBox
+            // 
+            this.DMsBox.Location = new System.Drawing.Point(667, 48);
+            this.DMsBox.Multiline = true;
+            this.DMsBox.Name = "DMsBox";
+            this.DMsBox.ReadOnly = true;
+            this.DMsBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.DMsBox.Size = new System.Drawing.Size(352, 262);
+            this.DMsBox.TabIndex = 0;
+            // 
             // DMBox
             // 
-            this.DMBox.Location = new System.Drawing.Point(667, 48);
-            this.DMBox.Multiline = true;
+            this.DMBox.Location = new System.Drawing.Point(666, 344);
             this.DMBox.Name = "DMBox";
-            this.DMBox.ReadOnly = true;
-            this.DMBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.DMBox.Size = new System.Drawing.Size(352, 262);
-            this.DMBox.TabIndex = 0;
+            this.DMBox.Size = new System.Drawing.Size(287, 20);
+            this.DMBox.TabIndex = 1;
             // 
-            // textBox3
+            // SendDMButton
             // 
-            this.textBox3.Location = new System.Drawing.Point(666, 344);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(287, 20);
-            this.textBox3.TabIndex = 1;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(966, 344);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(54, 20);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "Send";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.SendDirectMessage);
+            this.SendDMButton.Location = new System.Drawing.Point(966, 344);
+            this.SendDMButton.Name = "SendDMButton";
+            this.SendDMButton.Size = new System.Drawing.Size(54, 20);
+            this.SendDMButton.TabIndex = 3;
+            this.SendDMButton.Text = "Send";
+            this.SendDMButton.UseVisualStyleBackColor = true;
+            this.SendDMButton.Click += new System.EventHandler(this.SendDirectMessage);
             // 
             // DMLabel
             // 
@@ -211,7 +212,7 @@ namespace ClientGUIApp
             this.ClientSize = new System.Drawing.Size(1043, 445);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.MessageLabel);
-            this.Controls.Add(this.textBox4);
+            this.Controls.Add(this.RecipientBox);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.NewTopicLabel);
             this.Controls.Add(this.DMLabel);
@@ -220,24 +221,28 @@ namespace ClientGUIApp
             this.Controls.Add(this.AddTopicButton);
             this.Controls.Add(this.NewTopicBox);
             this.Controls.Add(this.RefreshButton);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.SendDMButton);
             this.Controls.Add(this.SendButton);
             this.Controls.Add(this.ListTopics);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.MessageBox);
             this.Controls.Add(this.DMBox);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.MessageBox);
+            this.Controls.Add(this.DMsBox);
+            this.Controls.Add(this.MessagesBox);
             this.Name = "MenuForm";
             this.Text = "MenuForm";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Closing);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox DMsBox;
+        private System.Windows.Forms.TextBox MessagesBox;
+        private System.Windows.Forms.TextBox RecipientBox;
+        private System.Windows.Forms.Button SendDMButton;
+
         private System.Windows.Forms.TextBox DMBox;
         private System.Windows.Forms.Label DMLabel;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox3;
 
         private System.Windows.Forms.TextBox MessageBox;
         private System.Windows.Forms.Label MessageLabel;
@@ -251,10 +256,7 @@ namespace ClientGUIApp
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListBox ListTopics;
         private System.Windows.Forms.Button RefreshButton;
-        private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label TopicsLabel;
-
-        private System.Windows.Forms.TextBox textBox1;
 
         #endregion
     }

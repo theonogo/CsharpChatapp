@@ -70,7 +70,7 @@ namespace ClientGUIApp
             }
         }
 
-        private void Closing(object sender, FormClosingEventArgs e)
+        private new void Closing(object sender, FormClosedEventArgs e)
         {
             Net.sendMsg(ClientValues.Comm.GetStream(),new Response((int) MTypes.CLOSE, false));
         }

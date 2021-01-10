@@ -127,7 +127,7 @@ namespace Communication
         public override string ToString()
         {
             
-            return " DM " + base.ToString();
+            return " DM " + Sender + " -> " + _recipient + ": " + Message;
         }
     }
 }

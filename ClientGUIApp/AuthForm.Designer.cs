@@ -114,7 +114,7 @@
             this.Controls.Add(this.UserBox);
             this.Name = "AuthForm";
             this.Text = "Authentication";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Closing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Closing);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
