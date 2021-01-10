@@ -53,7 +53,7 @@ namespace ChatApp
         {
             if (FindUser(uName)!= null) return false;
 
-            _users.Add(new User(uName, uPass, comm));
+            _users.Add(new User(uName, uPass, null));
             SaveUsers();
 
             return true;

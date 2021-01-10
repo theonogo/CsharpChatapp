@@ -26,7 +26,7 @@ namespace ChatApp
          */
         public bool Authenticate(string uName, string uPass, NetworkStream comm)
         {
-            if (uName.Equals(_name) && uPass.Equals(_password))
+            if (uName.Equals(_name) && uPass.Equals(_password) && _comm==null)
             {
                 _comm = comm;
                 return true;
