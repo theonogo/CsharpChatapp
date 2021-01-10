@@ -97,4 +97,26 @@ namespace Communication
             return _sender + ": " + _message;
         }
     }
+    
+    /*
+ * Chat messages with sender name and message content
+ */
+    [Serializable]
+    public class DirectMessage : ChatMessage
+    {
+        private string _recipient;
+
+        public DirectMessage(int mType, string sender, string message, string recipient) : base(mType, sender, message)
+        {
+            _recipient = recipient;
+        }
+
+        public string Recipient => _recipient;
+
+        public override string ToString()
+        {
+            
+            return " DM " + base.ToString();
+        }
+    }
 }

@@ -13,6 +13,8 @@ namespace ClientTextApp
         
         private TcpClient comm;
 
+        private bool inchat = false;
+        
         public Client(string h, int p)
         {
             hostname = h;
@@ -29,7 +31,7 @@ namespace ClientTextApp
             do
             {
                 //We start the program by asking the user to create an account and/or log in
-                Console.WriteLine("Select an option:");
+                Console.WriteLine("\nSelect an option:");
                 Console.WriteLine(" 1. Create Account");
                 Console.WriteLine(" 2. Log In");
                 Console.WriteLine(" 3. Exit");
@@ -90,14 +92,19 @@ namespace ClientTextApp
         {
             bool exit=false;
             string choice;
+            
+            //Starts a new thread to simultaneously listen and display received messages
+            Thread th = new Thread(MessageReceiver);
+            th.Start();
 
             do
             {
-                Console.WriteLine("Select an option:");
+                Console.WriteLine("\nSelect an option:");
                 Console.WriteLine(" 1. View Topics");
                 Console.WriteLine(" 2. Create Topic");
                 Console.WriteLine(" 3. Join Topic");
-                Console.WriteLine(" 4. Log out");
+                Console.WriteLine(" 4. Send Direct Message");
+                Console.WriteLine(" 5. Log out");
                 
                 choice = Console.ReadLine();
 
@@ -105,8 +112,6 @@ namespace ClientTextApp
                 {
                     case "1":
                         Net.sendMsg(comm.GetStream(), new TopicInfo((int) MTypes.VIEWTOP, null));
-                        
-                        Console.WriteLine(((TopicInfo) Net.rcvMsg(comm.GetStream())).TName);
                         break;
 
                     case "2":
@@ -114,16 +119,6 @@ namespace ClientTextApp
                         string newTopic = Console.ReadLine();
                         
                         Net.sendMsg(comm.GetStream(), new TopicInfo((int) MTypes.NEWTOP, newTopic));
-
-                        if (((Response) Net.rcvMsg(comm.GetStream())).Res)
-                        {
-                            Console.WriteLine("Topic Created");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Topic Already Exists!");
-                        }
-
                         break;
 
                     case "3":
@@ -131,21 +126,18 @@ namespace ClientTextApp
                         string tName = Console.ReadLine();
                         
                         Net.sendMsg(comm.GetStream(), new TopicInfo((int) MTypes.JOINTOP, tName));
-
-                        if (((Response) Net.rcvMsg(comm.GetStream())).Res)
-                        {
-                            Console.WriteLine("Topic Joined");
-                            //Move inside the chatroom if the topic had been joined
-                            ChatRoom(uName);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Topic Doesn't Exists!");
-                        }
-
                         break;
-
+                    
                     case "4":
+                        Console.WriteLine("Recipient Username: ");
+                        string recipient = Console.ReadLine();
+                        Console.WriteLine("Message: ");
+                        string dm = Console.ReadLine();
+                        Net.sendMsg(comm.GetStream(), new DirectMessage((int) MTypes.CHATMESSAGE,uName,dm,recipient));
+                        break;
+                        
+
+                    case "5":
                         //Logs out the user by disassociating the tcp connection with the account
                         Net.sendMsg(comm.GetStream(), new UserInfo((int) MTypes.LOGOUT,null,null));
                         exit = true;
@@ -155,15 +147,19 @@ namespace ClientTextApp
                         Console.WriteLine("Invalid Entry");
                         break;
                 }
+                Thread.Sleep(300);
+                if (inchat)
+                {
+                    Console.WriteLine("Topic Joined");
+                    //Move inside the chatroom if the topic had been joined
+                    ChatRoom(uName);
+                }
+                
             } while (!exit);
         }
 
         public void ChatRoom(string uName)
         {
-            //Starts a new thread to simultaneously listen and display received messages
-            Thread th = new Thread(MessageReceiver);
-            th.Start();
-            
             Console.WriteLine("Write Messages or 'quit' to leave topic");
             string input;
             //Automatically sends a message to tell all connected users that a new user has joined the topic
@@ -175,6 +171,10 @@ namespace ClientTextApp
                 if (input != "quit")
                 {
                     Net.sendMsg(comm.GetStream(), new ChatMessage((int) MTypes.CHATMESSAGE,uName,input));
+                }
+                else
+                {
+                    inchat = false;
                 }
             } while (input != "quit");
             //Sends a messagge to disconnect user from topic
@@ -188,23 +188,59 @@ namespace ClientTextApp
             //Continuously receives and displays messages
             do
             {
-                ChatMessage message = (ChatMessage) Net.rcvMsg(comm.GetStream());
-                
-                //This allows the thread to stop listening and close when the server tells it the user left the topic
-                if (message.MType == (int) MTypes.CHATLEAVE)
-                {
-                    cancel = true;
+                Message msg = Net.rcvMsg(comm.GetStream());
 
-                }
-                else
+                if (msg is TopicInfo)
                 {
-                    if (message.MType == (int) MTypes.CHATWELCOME)
+                    // View Topics Response
+                    Console.WriteLine(((TopicInfo) msg).TName);
+                } else if (msg is Response)
+                {
+                    Response message = (Response) msg;
+                    if (message.MType == (int) MTypes.NEWTOP)
                     {
-                        Console.WriteLine(message.Sender + " joined the Topic!");
+                        // New Topic Response
+                        if (message.Res)
+                        {
+                            Console.WriteLine("Topic Created");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Topic Already Exists!");
+                        }
+                    }
+                    else if (message.MType == (int) MTypes.JOINTOP)
+                    {
+                        // Joining Topic Response
+                        if (message.Res)
+                        {
+                            inchat = true;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Topic Doesn't Exists!");
+                        }
+                    }
+                } 
+                else if (msg is ChatMessage)
+                {
+                    ChatMessage message = (ChatMessage) msg;
+                    //This allows the thread to stop listening and close when the server tells it the user Disconnects
+                    if (message.MType == (int) MTypes.CHATLEAVE)
+                    {
+                        cancel = true;
+
                     }
                     else
                     {
-                        Console.WriteLine(message.ToString());
+                        if (message.MType == (int) MTypes.CHATWELCOME)
+                        {
+                            Console.WriteLine(message.Sender + " joined the Topic!");
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ToString());
+                        }
                     }
                 }
             } while (!cancel);

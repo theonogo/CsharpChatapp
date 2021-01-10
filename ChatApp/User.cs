@@ -1,14 +1,16 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 
 namespace ChatApp
 {
+    [Serializable]
     public class User
     {
         private string _name;
         private string _password;
-        private TcpClient _comm;
+        [NonSerialized] private NetworkStream _comm;
 
-        public User(string name, string password, TcpClient comm)
+        public User(string name, string password, NetworkStream comm)
         {
             _name = name;
             _password = password;
@@ -17,12 +19,12 @@ namespace ChatApp
 
         public string Name => _name;
 
-        public TcpClient Comm => _comm;
+        public NetworkStream Comm => _comm;
 
         /**
          * Authenticates login and password and assigns tcp connection to account
          */
-        public bool Authenticate(string uName, string uPass, TcpClient comm)
+        public bool Authenticate(string uName, string uPass, NetworkStream comm)
         {
             if (uName.Equals(_name) && uPass.Equals(_password))
             {

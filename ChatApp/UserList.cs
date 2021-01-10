@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ChatApp
 {
@@ -9,17 +12,49 @@ namespace ChatApp
 
         public UserList()
         {
-            _users = new List<User>();
+            
+            if (File.Exists("users.bin"))
+            {
+                FileStream stream = null;
+                try
+                {
+                    stream = File.Open("users.bin",FileMode.Open);
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    _users = (List<User>) formatter.Deserialize(stream);
+                    stream.Close();
+                }
+                catch (Exception e)
+                {
+                    _users = new List<User>();
+                    Console.WriteLine("Users unable to be loaded.");
+                    if(stream!= null)
+                        stream.Close();
+                }
+            } else {
+                _users = new List<User>();
+            }
+        }
+
+        /**
+         * Serializes and saves the list of users
+         */
+        public void SaveUsers()
+        {
+            FileStream stream = File.Create("users.bin");
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, _users);
+            stream.Close();
         }
 
         /**
          * Creates a new User if a user with that name does not already exist
          */
-        public bool CreateUser(string uName, string uPass, TcpClient comm)
+        public bool CreateUser(string uName, string uPass, NetworkStream comm)
         {
             if (FindUser(uName)!= null) return false;
 
             _users.Add(new User(uName, uPass, comm));
+            SaveUsers();
 
             return true;
         }
@@ -44,7 +79,7 @@ namespace ChatApp
          * Finds a user object from a given TCP connection
          * Returns null if user cannot be found
          */
-        public User FindUser(TcpClient comm)
+        public User FindUser(NetworkStream comm)
         {
             foreach (var u in _users)
             {
@@ -61,7 +96,7 @@ namespace ChatApp
          * Also updates users TCP connection
          * returns false if given incorrect credentials
          */
-        public bool Login(string uName, string uPass, TcpClient comm)
+        public bool Login(string uName, string uPass, NetworkStream comm)
         {
             foreach (User u in _users)
             {
@@ -74,7 +109,7 @@ namespace ChatApp
         /**
          * Verifies the connected TCP client is actually logged in
          */
-        public bool CheckLogged(TcpClient comm)
+        public bool CheckLogged(NetworkStream comm)
         {
             if (FindUser(comm) != null)
             {
@@ -87,7 +122,7 @@ namespace ChatApp
         /**
          * logs a user out given their TCP connection
          */
-        public void Logout(TcpClient comm)
+        public void Logout(NetworkStream comm)
         {
             FindUser(comm).LogOut();
         }

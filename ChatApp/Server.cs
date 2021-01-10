@@ -30,7 +30,7 @@ namespace ChatApp
             while (true)
             {
                 TcpClient comm = l.AcceptTcpClient();
-                Console.WriteLine("Connection established @" + comm);
+                Console.WriteLine("Connection established");
                 //For each connection, a thread is started to receive and process requests
                 new Thread(new Receiver(comm).ProcessRequest).Start();
             }
@@ -59,11 +59,14 @@ namespace ChatApp
                         LogManager((UserInfo) msg);
                     }
                     //Verifies user is actually logged in to deal with topics and messages
-                    else if (_userList.CheckLogged(comm)) 
+                    else if (_userList.CheckLogged(comm.GetStream())) 
                     {
                         if (msg is TopicInfo)
                         {
                             TopicManager((TopicInfo) msg);
+                        } else if (msg is DirectMessage)
+                        {
+                            DmManager((DirectMessage)msg);
                         } else if (msg is ChatMessage)
                         {
                             ChatManager((ChatMessage) msg);
@@ -75,6 +78,7 @@ namespace ChatApp
                         open = false;
                         comm.GetStream().Close();
                         comm.Close();
+                        Console.WriteLine("Connection Closed");
                     }
                 }
             }
@@ -88,7 +92,7 @@ namespace ChatApp
                 {
                     case (int) MTypes.LOGIN:
                         //Send message to confirm or deny login
-                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.Login(usr.Name, usr.Pass, comm)));
+                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.Login(usr.Name, usr.Pass, comm.GetStream())));
                         break;
                             
                     case (int) MTypes.NEWACC:
@@ -96,7 +100,9 @@ namespace ChatApp
                         Net.sendMsg(comm.GetStream(), new Response((int)MTypes.LOGIN,_userList.CreateUser(usr.Name, usr.Pass, null)));
                         break;
                     case (int) MTypes.LOGOUT:
-                        _userList.Logout(comm);
+                        _userList.Logout(comm.GetStream());
+                        //Sends a leave message to user as confirmation so the listening thread can end
+                        Net.sendMsg(comm.GetStream(), new ChatMessage((int) MTypes.CHATLEAVE, null, null));
                         break;
                 }
             }
@@ -115,7 +121,7 @@ namespace ChatApp
                                 
                     case (int)MTypes.JOINTOP :
                         //Send message to confirm or deny topic connection
-                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.NEWTOP, _topics.JoinTopic(tp.TName,_userList.FindUser(comm).Name)));
+                        Net.sendMsg(comm.GetStream(), new Response((int)MTypes.JOINTOP, _topics.JoinTopic(tp.TName,_userList.FindUser(comm.GetStream()).Name)));
                         break;
                                 
                     case (int)MTypes.VIEWTOP :
@@ -124,9 +130,7 @@ namespace ChatApp
                         break;
                                 
                     case (int) MTypes.LEAVETOP :
-                        _topics.LeaveTopic(_userList.FindUser(comm).Name);
-                        //Sends a leave message to user as confirmation so the listening thread can end
-                        Net.sendMsg(comm.GetStream(), new ChatMessage((int) MTypes.CHATLEAVE, null, null));
+                        _topics.LeaveTopic(_userList.FindUser(comm.GetStream()).Name);
                         break;
                 }
             }
@@ -147,10 +151,23 @@ namespace ChatApp
                     recipient = _userList.FindUser(uName);
                     if (recipient.Comm != null)
                     {
-                        Net.sendMsg(recipient.Comm.GetStream(),cmsg);
+                        Net.sendMsg(recipient.Comm,cmsg);
                     }
                 }
+            }
 
+            public void DmManager(DirectMessage dm)
+            {
+                User recipient = _userList.FindUser(dm.Recipient);
+
+                if (recipient != null)
+                {
+                    if (recipient.Comm != null)
+                    {
+                        Net.sendMsg(recipient.Comm,dm);
+                        Net.sendMsg(comm.GetStream(),dm);
+                    }
+                }
             }
         }
     }
